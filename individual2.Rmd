@@ -1,0 +1,93 @@
+---
+title: "Individual 2"
+author: "Andrew Sundberg"
+date: "April 11, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab 5
+
+## Part 1
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", 
+                stringsAsFactors = FALSE)
+acc$DAY_WEEK = factor(acc$DAY_WEEK)
+acc$HOUR = factor(acc$HOUR)
+acc$DRUNK_DR = factor(acc$DRUNK_DR)
+```
+
+
+## Day of the week
+
+```{r}
+ggplot(acc, aes(x = DAY_WEEK, y = VE_TOTAL)) + geom_boxplot()
+```
+
+
+## Time of day
+
+```{r}
+ggplot(acc, aes(x = HOUR, y = VE_TOTAL)) + geom_boxplot()
+```
+
+
+## Drunk Driver
+
+```{r}
+ggplot(acc, aes(x = DRUNK_DR, y = VE_TOTAL)) + geom_boxplot()
+table(acc$DRUNK_DR)
+sum((acc$DRUNK_DR == 1) + (acc$DRUNK_DR == 2) + (acc$DRUNK_DR == 3))
+```
+
+The total number of accidents with at least one drunk driver is 8769.
+
+
+## Part 2
+
+## Filter by person type one
+
+```{r}
+person = read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv")
+person1 = person[person$PER_TYP == 1,]
+```
+
+
+## Join the data sets
+
+```{r}
+joined = inner_join(acc,person1, by = "ST_CASE")
+
+joined %>% group_by(DAY_WEEK) %>% summarize(num.accidents = n())
+joined %>% group_by(HOUR.x) %>% summarize(num.accidents = n())
+joined %>% group_by(SEX) %>% summarize(num.accidents = n())
+
+barplot(table(joined$DAY_WEEK), xlab = "Day of the Week", ylab = "Number of Accidents", col = "blue")
+barplot(table(joined$HOUR.x), xlab = "Hour of the Day", ylab = "Number of Accidents", col = "red")
+barplot(table(joined$SEX), xlab = "Gender", ylab = "Number of Accidents", col = "green")
+
+```
+
+There seem to be more accidents on Friday, Saturday, and Sunday during the week. It looks like the most amount of accidents during the day occur around 5:00 pm to 9:00 pm.  And a majority of people in the accidents are males.
+
+
+## Part 3
+
+I could not load the glcs data file because it says the vector size is too large.  I worked on this part with my partner
+```{r}
+#glc = readxl::read_xlsx("C:/Users/Andrew Sundberg/Documents/DS202/ds202_lab5/FRPP GLC United States.xlsx", skip = 1)
+#names(glc) = c("Territory",  "State Name", "State Code", "City Code", "City Name", "COUNTY", "County Name", "Country Code", "Old City Name","Date Record Added")
+
+#glc$COUNTY = as.integer(glc$COUNTY)
+#p3 = full_join(acc, glc, by = "COUNTY")
+
+#ggplot(p3, aes(x = LONGITUD, y = LATITUDE)) + geom_path(aes(group = COUNTY))
+```
+
