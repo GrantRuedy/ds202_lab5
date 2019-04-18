@@ -51,14 +51,14 @@ ggplot(joined, aes(x=factor(SEX, label=c('Male', 'Female', 'Not Reported','Unkno
 ```
 
 
-Just like before, most accidents seem to happen on Friday, Saturday, and Sunday. Accidents seem to happen most from 5 to 8 am. And also from 5 to 9 pm. The largest amount of accidents is at 7 pm at night as well. By looking at the graph with gender, most accidents were from males. There is a steep drop off then for women, followed by unknown gender, and finally not reported gender.
+Just like before, most accidents seem to happen on Friday, Saturday, and Sunday. Accidents seem to happen most from 5 to 8 am. And also from 5 to 9 pm. The largest amount of accidents is at 7 pm at night as well. By looking at the graph with gender, most accidents were from males. There is a steep drop off then for women, followed by unknown gender, and finally not reported gender. It looks like males in the evening on the weekends are the most likely combination to get in a crash.
 
 ##PART 3
 ```{r}
 states <- map_data('state')
 counties <- map_data('county')
 library(readxl)
-glcs <- read_excel("/Users/grantruedy/ds202_lab5/FRPP GLC United States.xlsx", skip=1)
+glcs <- read_excel("C:/Users/Andrew Sundberg/Documents/DS202/ds202_lab5/ds202_lab5/FRPP GLC United States.xlsx", skip=1)
 
 colnames(glcs)[colnames(glcs)=="County Code"] <- 'COUNTY'
 glcs$COUNTY <- as.numeric(glcs$COUNTY)
