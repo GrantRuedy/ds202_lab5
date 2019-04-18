@@ -1,0 +1,79 @@
+---
+title: "team.Rmd"
+author: "Grant Ruedy & Andrew Sundberg"
+date: "4/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##PART 1 ACCIDENT DATA
+```{r}
+acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
+
+
+person <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+ggplot(acc, aes(x=factor(DAY_WEEK, label=c('Sun', 'Mon', 'Tues','Wed', 'Thurs','Fri', 'Sat')))) + geom_bar() + xlab('Day of the Week') + ylab('Number of accidents')
+
+ggplot(acc, aes(x=factor(HOUR))) + geom_bar() +xlab('Hour of Day') +ylab('Number of accidents')
+
+drunk <-acc %>% filter(DRUNK_DR >= 1)
+
+drunk %>% summarize(num.accidents = n())
+```
+
+According to the first graph, most accidents seem to happen on Friday, Saturday, and Sunday. Accidents seem to happen most from 5 to 8 am. And also from 5 to 9 pm. There is a large amount of accidents at 7 pm at night as well. There are 8769	accidents with at least 1 drunk driver.
+
+##PART 2
+```{r}
+person1 <- person %>% filter(PER_TYP == 1)
+
+joined <- inner_join(acc, person1, by='ST_CASE')
+
+joined %>% group_by(DAY_WEEK) %>% summarize(num.accidents = n())
+joined %>% group_by(HOUR.x) %>% summarize(num.accidents = n())
+joined %>% group_by(SEX) %>% summarize(num.accidents = n())
+
+ggplot(joined, aes(x=factor(DAY_WEEK, label=c('Sun', 'Mon', 'Tues','Wed','Thurs','Fri', 'Sat')))) + geom_bar() + xlab('Day of the Week') + ylab('Number of accidents')
+
+ggplot(joined, aes(x=factor(HOUR.x))) + geom_bar() +xlab('Hour of Day') +ylab('Number of accidents')
+
+ggplot(joined, aes(x=factor(SEX, label=c('Male', 'Female', 'Not Reported','Unknown')))) + geom_bar() +xlab('Gender') +ylab('Number of accidents')
+
+```
+
+
+Just like before, most accidents seem to happen on Friday, Saturday, and Sunday. Accidents seem to happen most from 5 to 8 am. And also from 5 to 9 pm. The largest amount of accidents is at 7 pm at night as well. By looking at the graph with gender, most accidents were from males. There is a steep drop off then for women, followed by unknown gender, and finally not reported gender.
+
+##PART 3
+```{r}
+states <- map_data('state')
+counties <- map_data('county')
+library(readxl)
+glcs <- read_excel("/Users/grantruedy/ds202_lab5/FRPP GLC United States.xlsx", skip=1)
+
+colnames(glcs)[colnames(glcs)=="County Code"] <- 'COUNTY'
+glcs$COUNTY <- as.numeric(glcs$COUNTY)
+dat <- full_join(acc[1:12,], glcs, by='COUNTY')
+
+counties$`County Name`<- toupper(counties$subregion)
+library(dplyr)
+counties1 <- counties %>%
+  select(long, lat, group, region, `County Name`)
+
+
+dat1 <- full_join(dat[1:58,], counties1, by='County Name')
+ dat1 %>% group_by(COUNTY) %>% mutate(total= n())
+ggplot(dat1, aes(x=long, y=lat, fill=(VE_TOTAL))) + geom_polygon(aes(group=group))
+
+```
+
+For some reason, the data file only shows when there is one accident, because the counties were split up. Neither of us could quite figure out why it was doing that. Going with it anyway, by looking at the map, the counties with accidents seem to be randomly scattered accross the U.S. It appears that winter is ore dangerous, as more counties came from states that experience coldish winters. This makes sense, because snow and ice make it harder to drive, leading to more accidents.
